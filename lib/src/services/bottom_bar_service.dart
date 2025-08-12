@@ -17,6 +17,9 @@ class BottomBarService {
       final bottomBarResponse = await _bottomBarApi.fetchBottomBarConfig(role);
 
       await _storage.cacheData(FrappeConstants.bottomBarConfigKey, bottomBarResponse);
+      print("bottomBarResponse:$bottomBarResponse");
+      final bottom = await _storage.getCachedData(FrappeConstants.bottomBarConfigKey);
+      print("bottom:$bottom");
 
       return bottomBarResponse;
     } on FrappeException {

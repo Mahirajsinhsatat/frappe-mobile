@@ -23,3 +23,5 @@ export 'src/utils/validators.dart';
 export 'src/models/bar_item.dart';
 export 'src/api/services/bottom_bar_api_service.dart';
 export 'src/Widget/dynamic_bottom_bar.dart';
+
+export 'src/api/services/doctype_api_service.dart';

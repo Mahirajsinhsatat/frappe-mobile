@@ -1,3 +1,5 @@
+import 'package:frappe_mobile/src/services/bottom_bar_service.dart';
+
 import '../models/user/frappe_user.dart';
 import '../api/services/auth_api_service.dart';
 import 'storage_service.dart';
@@ -9,6 +11,7 @@ class AuthenticationService {
   AuthenticationService._internal();
 
   final AuthApiService _authApi = AuthApiService();
+  final BottomBarService _bottomBarService = BottomBarService();
   final StorageService _storage = StorageService();
 
   Future<FrappeUser> login(String username, String password) async {
@@ -45,6 +48,8 @@ class AuthenticationService {
       );
 
       await _storage.storeUser(user);
+
+      await _bottomBarService.getBottomBarConfig('Employee');
       
       return user;
     } on FrappeException {

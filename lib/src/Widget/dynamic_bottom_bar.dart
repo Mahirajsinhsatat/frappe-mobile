@@ -3,13 +3,13 @@ import '../models/bar_item.dart';
 
 class DynamicBottomBar extends StatelessWidget {
   /// List of navigation items
-  final List<dynamic> items;
+  final List<BottomBarItem> items;
 
   /// Currently selected index
   final int currentIndex;
 
   /// Callback when a destination is tapped
-  final Function(int) onTap;
+  final void Function(int) onTap;
 
   /// Color of the selection indicator
   final Color? indicatorColor;
@@ -75,7 +75,7 @@ class DynamicBottomBar extends StatelessWidget {
   final bool enableHapticFeedback;
 
   const DynamicBottomBar({
-    Key? key,
+    super.key,
     required this.items,
     required this.currentIndex,
     required this.onTap,
@@ -110,7 +110,7 @@ class DynamicBottomBar extends StatelessWidget {
     // Tooltip customization
     this.showTooltips = false,
     this.tooltipBuilder,
-  }) : super(key: key);
+  });
 
   /// Default icon mapping for common icon names
   IconData _getIconData(String iconName, {bool isSelected = false}) {
@@ -151,12 +151,18 @@ class DynamicBottomBar extends StatelessWidget {
 
   /// Build default label text
   String _buildDefaultLabel(BottomBarItem item, bool isSelected) {
-    return labelBuilder?.call(item, isSelected) ?? item.title;
+    if (labelBuilder != null) {
+      return labelBuilder!(item, isSelected);
+    }
+    return item.title;
   }
 
   /// Build tooltip text
   String _buildTooltip(BottomBarItem item) {
-    return tooltipBuilder?.call(item) ?? item.title;
+    if (tooltipBuilder != null) {
+      return tooltipBuilder!(item);
+    }
+    return item.title;
   }
 
 
@@ -170,20 +176,22 @@ class DynamicBottomBar extends StatelessWidget {
     final navigationBarTheme = theme.navigationBarTheme;
     final effectiveIndicatorColor = indicatorColor ?? Colors.amber;
 
+    void destinationSelectedCallback(int index) {
+      if (enableHapticFeedback) {
+        // Add haptic feedback if available
+        try {
+          // This would require adding haptic_feedback package dependency
+          // HapticFeedback.selectionClick();
+        } catch (e) {
+          // Silently fail if haptic feedback is not available
+        }
+      }
+      onTap(index);
+    }
+
     Widget navigationBar = NavigationBar(
       selectedIndex: currentIndex.clamp(0, items.length - 1),
-      onDestinationSelected: (index) {
-        if (enableHapticFeedback) {
-          // Add haptic feedback if available
-          try {
-            // This would require adding haptic_feedback package dependency
-            // HapticFeedback.selectionClick();
-          } catch (e) {
-            // Silently fail if haptic feedback is not available
-          }
-        }
-        onTap(index);
-      },
+      onDestinationSelected: destinationSelectedCallback,
 
       // Visual properties
       indicatorColor: effectiveIndicatorColor,
@@ -210,11 +218,19 @@ class DynamicBottomBar extends StatelessWidget {
         final isSelected = index == currentIndex;
 
         // Build icon
-        final iconWidget = iconBuilder?.call(item, isSelected) ??
-            _buildDefaultIcon(item, isSelected);
+        Widget iconWidget;
+        if (iconBuilder != null) {
+          iconWidget = iconBuilder!(item, isSelected);
+        } else {
+          iconWidget = _buildDefaultIcon(item, isSelected);
+        }
 
-        final selectedIconWidget = iconBuilder?.call(item, true) ??
-            _buildDefaultIcon(item, true);
+        Widget selectedIconWidget;
+        if (iconBuilder != null) {
+          selectedIconWidget = iconBuilder!(item, true);
+        } else {
+          selectedIconWidget = _buildDefaultIcon(item, true);
+        }
 
         // Build label text
         final labelText = _buildDefaultLabel(item, isSelected);
@@ -256,7 +272,7 @@ extension DynamicBottomBarStyles on DynamicBottomBar {
   static DynamicBottomBar minimal({
     required List<BottomBarItem> items,
     required int currentIndex,
-    required Function(int) onTap,
+    required void Function(int) onTap,
     Color? indicatorColor,
   }) {
     return DynamicBottomBar(
@@ -273,7 +289,7 @@ extension DynamicBottomBarStyles on DynamicBottomBar {
   static DynamicBottomBar floating({
     required List<BottomBarItem> items,
     required int currentIndex,
-    required Function(int) onTap,
+    required void Function(int) onTap,
     Color? backgroundColor,
     Color? indicatorColor,
   }) {
@@ -344,7 +360,7 @@ class DynamicBottomBarTheme {
   DynamicBottomBar apply({
     required List<BottomBarItem> items,
     required int currentIndex,
-    required Function(int) onTap,
+    required void Function(int) onTap,
     bool useIndicatorColorForLabels = true,
   }) {
     return DynamicBottomBar(

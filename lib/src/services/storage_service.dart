@@ -116,16 +116,16 @@ class StorageService {
       if (cacheString != null) {
         final cacheItem = jsonDecode(cacheString) as Map<String, dynamic>;
         final timestamp = cacheItem['timestamp'] as int;
-        final expiration = cacheItem['expiration'] as int;
+        // final expiration = cacheItem['expiration'] as int;
         
         final now = DateTime.now().millisecondsSinceEpoch;
         
-        if (now - timestamp < expiration) {
+        // if (now - timestamp < expiration) {
           return cacheItem;
-        } else {
+        // } else {
 
-          await prefs.remove('cache_$key');
-        }
+          // await prefs.remove('cache_$key');
+        // }
       }
       
       return null;
